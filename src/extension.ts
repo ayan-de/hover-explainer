@@ -1,10 +1,59 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import * as path from 'path';
+import * as fs from 'fs';
+
+let descriptions: Record<string, string> = {};
+
+function loadDescriptions() {
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+  if (!workspaceFolder) {return;};
+
+  const descPath = path.join(workspaceFolder, '.fileDescriptions.json');
+  if (fs.existsSync(descPath)) {
+    const raw = fs.readFileSync(descPath, 'utf-8');
+    descriptions = JSON.parse(raw);
+  }
+}
+
+class DescriptionDecorator implements vscode.FileDecorationProvider {
+  onDidChangeFileDecorations?: vscode.Event<vscode.Uri | vscode.Uri[]>;
+
+  provideFileDecoration(uri: vscode.Uri): vscode.ProviderResult<vscode.FileDecoration> {
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+    if (!workspaceFolder) {return;};
+
+    const relativePath = path.relative(workspaceFolder, uri.fsPath).replace(/\\/g, '/');
+    const desc = descriptions[relativePath];
+
+    if (desc) {
+      return {
+        tooltip: desc,
+        badge: 'ℹ️', // Optional icon badge
+        propagate: false
+      };
+    }
+  }
+}
+
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+
+	  loadDescriptions();
+
+	   const provider = new DescriptionDecorator();
+  		vscode.window.registerFileDecorationProvider(provider);
+
+		vscode.workspace.onDidChangeTextDocument(event => {
+  if (event.document.fileName.endsWith('.fileDescriptions.json')) {
+    loadDescriptions();
+    // force refresh by firing event if needed later
+  }
+});
+
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
