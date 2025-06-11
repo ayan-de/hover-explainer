@@ -1,20 +1,31 @@
-# Hover Docs VS Code Extension
+# 📁 hover-explainer — Understand Your Project at a Glance
 
-🧠 Instantly understand the purpose of each file and folder in your project by hovering over them!
+`hover-explainer` is a lightweight VS Code extension that shows contextual tooltips on hover over files and folders in the Explorer. Ideal for large teams, onboarding, and open source contributors.
 
-## ✨ Features
+### 🛠 Features
 
-- Show a tooltip when hovering over files/folders in the Explorer
-- Stores file/folder descriptions in `.fileDescriptions.json`
-- Automatically updates the description file when files are created, renamed, or deleted
-- Supports badges for visually marked items (`ℹ️`)
+- 📝 Hover over any file/folder to see its description
+- ⚙️ `.fileDescriptions.json` is auto-maintained:
+  - Automatically adds new files/folders
+  - Removes deleted ones
+  - Updates on rename
+- ✅ Simple JSON-based config, easily version-controlled
+- 🔍 Helps you understand codebase structure at a glance
 
-## 📂 Example `.fileDescriptions.json`
+### 📂 How it Works
 
-```json
-{
-  "src": "Contains core app logic",
-  "src/components": "Reusable UI components",
-  "README.md": "Project overview and usage instructions"
-}
+1. On first use, the extension creates a `.fileDescriptions.json` file in your root directory.
+2. When files/folders are created, renamed, or deleted, the file is updated automatically.
+3. Add or edit descriptions manually in that JSON file.
+
+### 📸 Screenshot
+
+> _Include a screenshot or gif here showing the tooltip hover in the file explorer._
+
+### 🚀 Installation
+
+Search for `hover-docs` in the VS Code Marketplace or install via CLI:
+
+```bash
+code --install-extension ayan-de.hover-docs
 ```
