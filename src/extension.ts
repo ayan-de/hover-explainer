@@ -3,7 +3,6 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
-import { get } from "http";
 
 let descriptions: Record<string, string> = {};
 
