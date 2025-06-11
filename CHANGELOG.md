@@ -1,9 +1,11 @@
-# Change Log
+# Changelog
 
-All notable changes to the "hover-docs" extension will be documented in this file.
+All notable changes to this project will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## [0.0.1] - 2025-06-04
 
-## [Unreleased]
+### Added
 
-- Initial release
+- Initial release of Hover Docs extension.
+- Automatically creates `.fileDescriptions.json` when new files/folders are added.
+- Shows hover tooltip in VS Code Explorer using `FileDecorationProvider`.

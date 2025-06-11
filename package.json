@@ -1,24 +1,34 @@
 {
   "name": "hover-docs",
   "displayName": "hover-docs",
-  "description": "hover to know the importance of files and folder on hover",
+  "description": "Hover to see the importance and purpose of files and folders directly in the VS Code Explorer.",
   "version": "0.0.1",
+  "publisher": "ayan-de",
   "engines": {
     "vscode": "^1.100.0"
   },
   "categories": [
     "Other"
   ],
+  "icon": "media/icon.png",
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "hover-docs.helloWorld",
-        "title": "Hello World"
+        "title": "Hover Docs: Hello World"
       }
     ]
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ayan-de/hover-docs"
+  },
+  "bugs": {
+    "url": "https://github.com/ayan-de/hover-docs/issues"
+  },
+  "homepage": "https://github.com/ayan-de/hover-docs#readme",
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
