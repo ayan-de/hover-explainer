@@ -17,6 +17,15 @@ function loadDescriptions() {
   }
 }
 
+function saveDescriptions() {
+	const workspaceFolder = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+	if (!workspaceFolder) {return;};
+
+	const descPath = path.join(workspaceFolder, '.fileDescriptions.json');
+	fs.writeFileSync(descPath, JSON.stringify(descriptions, null, 2));
+}
+
+
 class DescriptionDecorator implements vscode.FileDecorationProvider {
   onDidChangeFileDecorations?: vscode.Event<vscode.Uri | vscode.Uri[]>;
 
@@ -53,6 +62,59 @@ export function activate(context: vscode.ExtensionContext) {
     // force refresh by firing event if needed later
   }
 });
+
+// 1. Watch all files/folders in workspace
+const watcher = vscode.workspace.createFileSystemWatcher('**/*');
+
+// 2. On file/folder created
+watcher.onDidCreate(uri => {
+	const workspaceFolder = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+	if (!workspaceFolder) {return;};
+
+	const relative = path.relative(workspaceFolder, uri.fsPath).replace(/\\/g, '/');
+
+	// Avoid editing .fileDescriptions.json itself
+	if (relative === '.fileDescriptions.json') {return;};
+
+	// Add placeholder only if it doesn't already exist
+	if (!descriptions[relative]) {
+		descriptions[relative] = 'TODO: Add description';
+		saveDescriptions();
+	}
+});
+
+// 3. On file/folder deleted
+watcher.onDidDelete(uri => {
+	const workspaceFolder = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+	if (!workspaceFolder) {return;};
+
+	const relative = path.relative(workspaceFolder, uri.fsPath).replace(/\\/g, '/');
+
+	if (descriptions[relative]) {
+		delete descriptions[relative];
+		saveDescriptions();
+	}
+});
+
+// 4. On file/folder renamed
+vscode.workspace.onDidRenameFiles(event => {
+	const workspaceFolder = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+	if (!workspaceFolder) {return;};
+
+	for (const file of event.files) {
+		const oldPath = path.relative(workspaceFolder, file.oldUri.fsPath).replace(/\\/g, '/');
+		const newPath = path.relative(workspaceFolder, file.newUri.fsPath).replace(/\\/g, '/');
+
+		if (descriptions[oldPath]) {
+			descriptions[newPath] = descriptions[oldPath];
+			delete descriptions[oldPath];
+			saveDescriptions();
+		}
+	}
+});
+
+context.subscriptions.push(watcher);
+
 
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
