@@ -2,7 +2,7 @@
   "name": "hover-explainer",
   "displayName": "hover-explainer",
   "description": "Hover to see the importance and purpose of files and folders directly in the VS Code Explorer.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "ayande",
   "engines": {
     "vscode": "^1.100.0"
