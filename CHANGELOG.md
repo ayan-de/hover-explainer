@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.0](https://github.com/ayan-de/hover-docs/compare/v0.0.3...v0.1.0) (2025-06-19)
+
+
+### Features
+
+* add .fileignore support to skip tracking ignored files (closes [#1](https://github.com/ayan-de/hover-docs/issues/1)) ([42d195c](https://github.com/ayan-de/hover-docs/commit/42d195c4f4c9e0273924c5a9283e7a00da2d83d6))
+
 ### 0.0.3 (2025-06-19)
 
 
