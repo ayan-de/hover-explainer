@@ -54,5 +54,8 @@
     "eslint": "^9.25.1",
     "standard-version": "^9.5.0",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "minimatch": "^10.0.3"
   }
 }

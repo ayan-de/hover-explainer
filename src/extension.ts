@@ -3,8 +3,10 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
+import { minimatch } from "minimatch";
 
 let descriptions: Record<string, string> = {};
+let ignorePatterns: string[] = [];
 
 //get the workspace folder path */
 function getWorkspaceFolder(): string | undefined {
@@ -49,6 +51,43 @@ function loadDescriptions() {
   }
 }
 
+function loadFileIgnore(): void {
+  const workspace = getWorkspaceFolder();
+  if (!workspace) {
+    return;
+  }
+
+  const ignorePath = path.join(workspace, ".fileignore");
+  if (!fs.existsSync(ignorePath)) {
+    ignorePatterns = [];
+    return;
+  }
+
+  const lines = fs
+    .readFileSync(ignorePath, "utf-8")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#"));
+
+  // Convert trailing-slash folders to recursive ignore patterns
+
+  ignorePatterns = lines.map((pattern) => {
+    if (pattern.endsWith("/")) {
+      return `${pattern}**`; // Convert "src/" → "src/**"
+    } else if (
+      fs.existsSync(path.join(workspace, pattern)) &&
+      fs.lstatSync(path.join(workspace, pattern)).isDirectory()
+    ) {
+      return `${pattern}/**`; // src → src/** if it's a folder
+    }
+    return pattern;
+  });
+}
+
+function isIgnored(relativePath: string): boolean {
+  return ignorePatterns.some((pattern) => minimatch(relativePath, pattern));
+}
+
 /**************/
 /**
  * Writes the current file descriptions back to the .fileDescriptions.json file
@@ -86,6 +125,11 @@ class DescriptionDecorator implements vscode.FileDecorationProvider {
     const relativePath = path
       .relative(workspaceFolder, uri.fsPath)
       .replace(/\\/g, "/");
+
+    if (isIgnored(relativePath)) {
+      return;
+    }
+
     const desc = descriptions[relativePath];
 
     if (desc) {
@@ -104,6 +148,7 @@ export function activate(context: vscode.ExtensionContext) {
   console.log("hover-docs extension activated");
 
   loadDescriptions();
+  loadFileIgnore();
 
   const provider = new DescriptionDecorator();
   context.subscriptions.push(
@@ -127,6 +172,10 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     } // Ignore the description file itself
 
+    if (isIgnored(relative)) {
+      return;
+    }
+
     if (!descriptions[relative]) {
       descriptions[relative] = "TODO: Add description";
       saveDescriptions();
@@ -145,6 +194,11 @@ export function activate(context: vscode.ExtensionContext) {
     const relative = path
       .relative(workspaceFolder, uri.fsPath)
       .replace(/\\/g, "/");
+
+    if (isIgnored(relative)) {
+      return;
+    }
+
     if (descriptions[relative]) {
       delete descriptions[relative];
       saveDescriptions();
@@ -169,6 +223,10 @@ export function activate(context: vscode.ExtensionContext) {
         .relative(workspaceFolder, file.newUri.fsPath)
         .replace(/\\/g, "/");
 
+      if (isIgnored(oldPath) || isIgnored(newPath)) {
+        continue;
+      }
+
       if (descriptions[oldPath]) {
         descriptions[newPath] = descriptions[oldPath];
         delete descriptions[oldPath];
@@ -185,6 +243,11 @@ export function activate(context: vscode.ExtensionContext) {
     if (event.document.fileName.endsWith(".fileDescriptions.json")) {
       loadDescriptions();
       provider.refresh(); // Refresh all decorations
+    }
+
+    if (event.document.fileName.endsWith(".fileignore")) {
+      loadFileIgnore();
+      provider.refresh(); // re-decorate
     }
   });
 
