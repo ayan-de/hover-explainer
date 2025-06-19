@@ -91,7 +91,7 @@ class DescriptionDecorator implements vscode.FileDecorationProvider {
     if (desc) {
       return {
         tooltip: desc,
-        badge: "ℹ️",
+        badge: "💡",
         propagate: false,
       };
     }
